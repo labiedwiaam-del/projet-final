@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class EnsureUserRole
+{
+    /**
+     * Handle an incoming request.
+     */
+    public function handle(Request $request, Closure $next, string $roles): Response
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            abort(403, 'Accès non autorisé.');
+        }
+
+        $allowedRoles = explode('|', $roles);
+
+        if (!in_array($user->role, $allowedRoles, true)) {
+            abort(403, 'Accès réservé au rôle approprié.');
+        }
+
+        return $next($request);
+    }
+}
